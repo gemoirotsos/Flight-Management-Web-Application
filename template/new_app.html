@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <title>Aerofind</title>
+  <style>
+    :root {
+      --primary: #0ea5e9;        /* sky blue */
+      --primary-light: #e0f2fe;
+      --primary-dark: #0369a1;
+      --bg: #020617;             /* πολύ σκούρο μπλε */
+      --card-bg: #0b1120;
+      --border: #1f2937;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --success: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 0;
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text-main);
+    }
+
+    /* Top nav */
+    .navbar {
+      background: linear-gradient(90deg, #020617, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .navbar-title {
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .navbar-title span.logo-icon {
+      font-size: 22px;
+    }
+
+    .navbar-subtitle {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .navbar-menu {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background-color: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.15s, color 0.15s, transform 0.05s;
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(15, 23, 42, 0.5);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active {
+      background-color: #f9fafb;
+      color: var(--primary-dark);
+    }
+
+    .nav-icon {
+      font-size: 16px;
+    }
+
+    /* Main layout */
+    .page {
+      max-width: 1100px;
+      margin: 20px auto 40px auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 18px;
+      padding: 18px 20px 20px 20px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border);
+    }
+
+    .card + .card {
+      margin-top: 18px;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin-top: 16px;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin-top: 4px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      font-family: Consolas, monospace;
+      font-size: 14px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: #020617;
+      color: var(--text-main);
+      resize: vertical;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      border: 1px solid var(--primary-dark);
+      background-color: var(--primary);
+      color: white;
+      transition: background-color 0.15s, transform 0.05s, box-shadow 0.15s;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.5);
+      transform: translateY(-1px);
+    }
+
+    table, th, td {
+      border: 1px solid var(--border);
+      border-collapse: collapse;
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 8px;
+      background-color: #020617;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .selected-flight {
+      background-color: rgba(56, 189, 248, 0.22);
+      font-weight: 600;
+    }
+
+    .selected-flight-note {
+      font-size: 12px;
+      color: #bfdbfe;
+    }
+
+
+    th {
+      background-color: rgba(15, 23, 42, 0.9);
+      text-align: left;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    tr:nth-child(even) {
+      background-color: #020617;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #030712;
+    }
+
+    td {
+      color: #e5e7eb;
+    }
+
+    #viewError, #formError, #smartError {
+      margin-top: 6px;
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+
+    .field-row {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .field-row label {
+      flex: 0 0 190px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .field-row input,
+    .field-row select {
+      flex: 1;
+      min-width: 200px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background-color: #020617;
+      color: var(--text-main);
+    }
+
+    .field-row input::placeholder {
+      color: #6b7280;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background-color: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    /* Sections */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    #tableSelect, #viewTableSelect {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background-color: #020617;
+      color: var(--text-main);
+      font-size: 14px;
+      margin-left: 6px;
+    }
+
+    /* Home cards */
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .home-card {
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s, background 0.15s;
+      color: #e5e7eb;
+    }
+
+    .home-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(8, 47, 73, 0.9);
+      border-color: #38bdf8;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .home-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .home-card-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .home-card-text {
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    /* Πετάμενο αεροπλανάκι στο κάτω μέρος της σελίδας */
+  .flying-plane {
+    position: fixed;          /* μένει στο κάτω μέρος όταν κάνεις scroll */
+    bottom: 40px;             /* απόσταση από κάτω */
+    left: -80px;              /* ξεκινάει λίγο εκτός οθόνης */
+    font-size: 42px;          /* μέγεθος emoji */
+    opacity: 0.9;
+    pointer-events: none;     /* να μη “πιάνεται” με το mouse */
+    z-index: 1;               /* πάνω από το background, κάτω από τις κάρτες */
+    animation: planeMove 18s linear infinite;
+  }
+
+/* Κίνηση από αριστερά προς τα δεξιά με ελαφριά ανύψωση */
+  @keyframes planeMove {
+    0% {
+      transform: translateX(0) translateY(0) rotate(0deg);
+    }
+    100% {
+      transform: translateX(120vw) translateY(-20px) rotate(2deg);
+    }
+  }
+
+    .status-scheduled {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-delayed {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-cancelled {
+      background-color: #b91c1c;
+      color: #fee2e2;
+    }
+
+    .status-completed {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-unknown {
+      background-color: #e5e7eb;
+      color: #374151;
+    }
+
+    /* ===== Αρχική με background εικόνα ===== */
+    #section-home {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+    }
+
+    #section-home::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("{{ url_for('static', filename='images/bg.jpg') }}");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.55;          /* πιο “ζωντανή” εικόνα */
+  /* filter: blur(1px); */ /* βγάζουμε το blur για να είναι καθαρή */
+  z-index: 0;
+}
+
+    #section-home .card {
+  background: rgba(15, 23, 42, 0.4);  /* πιο διάφανο */
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+
+    #section-home h1 {
+      color: #f9fafb;
+    }
+
+    #section-home p {
+      color: #e5e7eb;
+    }
+
+  .hamburger {
+    display: block;
+    font-size: 26px;
+    padding: 8px 14px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+
+
+/* Side menu */
+  .side-menu {
+    position: fixed;
+    top: 0;
+    right: -260px;
+    width: 260px;
+    height: 100vh;
+    background-color: #0b1120;
+    padding: 20px;
+    box-shadow: -3px 0 8px rgba(0,0,0,0.5);
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 999;
+  }
+
+  .side-menu.open {
+    right: 0;
+  }
+
+  .close-btn {
+    align-self: flex-end;
+    font-size: 30px;
+    background: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div>
+      <div class="navbar-title">
+        <span class="logo-icon">✈️</span>
+        Aerofind
+      </div>
+      <div class="navbar-subtitle">Smart flight &amp; passenger manager</div>
+    </div>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav id="sideMenu" class="side-menu">
+    <button class="close-btn" onclick="toggleMenu()">×</button>
+
+    <button class="nav-btn" id="nav-home" onclick="showSection('home'); toggleMenu()">🏠 Αρχική</button>
+    <button class="nav-btn" id="nav-view" onclick="showSection('view'); toggleMenu()">📊 Προβολή πινάκων</button>
+    <button class="nav-btn" id="nav-insert" onclick="showSection('insert'); toggleMenu()">🛫 Εισαγωγή πτήσεων</button>
+    <button class="nav-btn" id="nav-search" onclick="showSection('deleteFlight'); toggleMenu()">❌ Διαγραφή πτήσεων</button>
+    <button class="nav-btn" id="nav-search-Flight" onclick="showSection('searchFlight'); toggleMenu()">👜 Που θέλεις να ταξιδέψεις;</button>
+    <button class="nav-btn" id="nav-search-Best-Offer" onclick="showSection('searchBestOffer'); toggleMenu()">🌟 Ευκαιρίες του μήνα</button>
+    <button class="nav-btn" id="nav-search-Passengers" onclick="showSection('searchPassengers'); toggleMenu()">🪑 Υπολειπόμενες θέσεις</button>
+  </nav>
+  </header>
+
+  <main class="page">
+    <!-- ========== SECTION: HOME (6 μεγάλα κουτιά) ========== -->
+    <div class="section active" id="section-home">
+      <div class="card">
+        <h1>Καλώς ήρθες στο Aerofind</h1>
+        <p>Διάλεξε τι θέλεις να κάνεις:</p>
+        
+        <!-- Πρωτο κουτι-->>
+        <div class="home-grid">
+          <div class="home-card" onclick="showSection('view')">
+            <div class="home-card-icon">📊</div>
+            <div class="home-card-title">Προβολή πινάκων</div>
+            <div class="home-card-text">
+              Διάλεξε έναν πίνακα (flight, passengers, airline, airport)
+              και δες όλα τα δεδομένα χωρίς να γράφεις SQL.
+            </div>
+          </div>
+        
+        <!-- Δευτερο Κουτι -->  
+        <div class="home-card" onclick="showSection('insert')">
+            <div class="home-card-icon">🛫</div>
+            <div class="home-card-title">Εισαγωγή νέας πτήσης</div>
+            <div class="home-card-text">
+              Συμπλήρωσε φόρμα για να προσθέσεις νέα πτήση.
+            </div>
+          </div>
+
+        <!-- Τριτο Κουτι--> 
+        <div class="home-card" onclick="showSection('deleteFlight')">
+            <div class="home-card-icon">❌</div>
+            <div class="home-card-title">Διαγραφή πτήσης</div>
+            <div class="home-card-text">
+              Συμπλήρωσε τον κωδικό της πτήσης, προκειμένου να διαγραφεί .
+            </div>
+          </div>
+        
+        <!-- Τεταρτο κουτι -->  
+        <!-- Εισαγωγή νέας λειτουργίας - Που θελεις να ταξιδεψεις -->
+          <div class="home-card" onclick="showSection('searchFlight')">
+            <div class="home-card-icon">👜 </div>
+            <div class="home-card-title">Που θέλεις να ταξιδέψεις;</div>
+            <div class="home-card-text">
+              Εισήγαγε τον προορισμό και την ημερομηνία που θέλεις να ταξιδέψεις
+              και βρες τις καλύτερες ευκαιρίες.
+            </div>
+          </div>
+          
+          <!-- Πεμπτο κουτι -->
+          <div class="home-card" onclick="showSection('searchBestOffer')">
+            <div class="home-card-icon">🌟</div>
+            <div class="home-card-title">Βρες τις καλύτερες ευκαιρίες του μήνα!</div>
+            <div class="home-card-text">
+              Συμπλήρωσε τον προορισμό και τον μήνα που σε ενδιαφέρει και βρες τις καλύτερες ευκαιρίες.
+            </div>
+          </div>
+
+          <!-- Εκτο κουτι -->
+          <div class="home-card" onclick="showSection('searchPassengers')">
+            <div class="home-card-icon">🪑</div>
+            <div class="home-card-title">Δες πόσες θέσεις απομένουν</div>
+            <div class="home-card-text">
+              Συμπλήρωσε το id της πτήσης και δες πόσες θέσεις απομένουν!
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!--ΕΙΣΑΓΩΓΗ ΣΤΑ ΚΟΥΤΙΑ ΚΑΝΟΝΤΑΣ ΚΛΙΚ -->
+
+    <!-- ΚΛΙΚ ΣΤΟ 1ο ΚΟΥΤΙ "ΠΟΡΒΟΛΗ ΠΙΝΑΚΩΝ"-->
+    <div class="section" id="section-view">
+      <div class="card">
+        <div class="section-title-row">
+          <h1>Δες ολόκληρο τον πίνακα που σε ενδιαφέρει</h1>
+          <button type="button" class="badge">view </button>
+        </div>
+
+        <p>Επέλεξε τον πίνακα που σε ενδιαφέρει και πάτα <strong> Αναζήτηση </strong></p>
+
+        <div class="field-row">
+          <label for="viewTableSelect">Πίνακας</label>
+          <select id="viewTableSelect" name="viewTableSelect">
+            <option value="">-- επίλεξε --</option>
+            {% for t in table_names %}
+                <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}  
+          </select>
+        </div>
+
+        <button type="button" id="searchTableBtn">Αναζήτηση</button>
+
+        <h2>Αποτελέσματα</h2>
+        <div id="searchTableResults">
+        </div>
+      </div>
+    </div> 
+
+    <!-- ========== ΚΛΙΚ ΣΤΟ 2ο ΚΟΥΤΙ: εισαγωγη νεας πτησης ========== -->
+    <div class="section" id="section-insert">
+      <div class="card">
+        <div class="section-title-row">
+          <h1>Συμπλήρωσε τα απαραίτητα στοιχεία και εισήγαγε νέα πτήση στον πίνακα flight</h1>
+          <button type="button" class="badge">insert </button>
+        </div>
+
+        <p>Συμπλήρωσε φίλτρα και πάτα <strong>Προσθήκη </strong>.</p>
+
+        <div class="field-row">
+          <label for="insertAirlineId">Airline ID </label>
+          <input type="number" id="insertAirlineId" min="1" step="1" placeholder="π.χ. 1">
+        </div>
+
+        <div class="field-row">
+          <label for="insertDepartureAirportId">Departure Airport ID </label>
+          <input type="number" id="insertDepartureAirportId" min="1" step="1" placeholder="π.χ. 1">
+        </div>
+
+        <div class="field-row">
+          <label for="insertArrivalAirportId">Arrival Airport ID </label>
+          <input type="number" id="insertArrivalAirportId" min="1" step="1" placeholder="π.χ. 1">
+        </div>
+
+
+        <div class="field-row">
+          <label for="insertFlightDate">Ημερομηνία</label>
+          <input type="date" id="insertFlightDate" name="insertFlightDate">
+        </div>
+
+        <div class="field-row">
+          <label for="insertFlightTime">Ώρα πτήσης </label>
+          <input type="time" id="insertFlightTime" name="insertFlightTime">
+        </div>
+
+        <div class="field-row">
+          <label for="insertPrice">Τιμή πτήσης </label>
+          <input type="number" id="insertPrice" min="0" step="0.01" placeholder="π.χ. 145.50">
+        </div>
+
+        <button type="button" id="InsertFlightBtn">Προσθήκη</button>
+
+        <h2>Αποτέλεσμα</h2>
+        <div id="InsertFlightResult">
+        </div>
+      </div>
+    </div>
+
+    <!-- Κλικ στο 3ο κουτι - Διαγραφη πτησης--> 
+    <div class="section" id="section-deleteFlight">
+      <div class="card">
+        <div class="section-title-row">
+          <h1>Διέγραψε την πτήση που θέλεις βάζοντας το μοναδικό id της</h1>
+          <button type="button" class="badge">delete </button>
+        </div>
+
+        <p>Εισήγαγε το <strong>ID</strong> της πτήσης</p>
+
+        <div class="field-row">
+          <label for="deleteFlightId">ID πτήσης</label>
+          <input type="number" id="deleteFlightId" min="1" step="1" placeholder="π.χ. 48">
+        </div>
+
+        <button type="button" id="deleteFlightBtn">Διαγραφή</button>
+
+        <h2>Αποτέλεσμα</h2>
+        <div id="deleteFlightResult">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ΚΛΙΚ ΣΤΟ 4ο ΚΟΥΤΙ: Που θέλεις να ταξιδέψεις; ========== -->
+    <div class="section" id="section-searchFlight">
+      <div class="card">
+        <div class="section-title-row">
+          <h1>Αναζήτησε την πτήση που σε ενδιαφέρει</h1>
+          <button type="button" class="badge">flight </button>
+        </div>
+
+        <p>Επέλεξε φίλτρα (πόλη αναχώρησης/προορισμού, ημερομηνία) και πάτα Αναζήτηση πτήσεων.</p>
+
+        <div class="field-row">
+          <label for="fromCity">Πόλη αναχώρησης</label>
+          <select id="fromCity" name="fromCity">
+            <option value="">-- επίλεξε --</option>
+            {% for city in departure_cities %}
+                <option value="{{ city }}">{{ city }}</option>
+            {% endfor %}  
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="toCity">Πόλη προορισμού</label>
+          <select id="toCity" name="toCity">
+            <option value="">-- επίλεξε --</option>
+            {% for city in arrival_cities %}
+                <option value="{{ city }}">{{ city }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="insertDays">Διανυχτερεύσεις</label>
+          <input type="number" id="insertDays" min="1" step="1" placeholder="π.χ. 4">
+        </div>
+
+        <div class="field-row">
+          <label for="flightDate">Ημερομηνία</label>
+          <input type="date" id="flightDate" name="flightDate">
+        </div>
+
+        <button type="button" id="searchFlightBtn">Αναζήτηση</button>
+
+        <h2>Αποτελέσματα</h2>
+        <div id="searchFlightResults">
+        </div>
+      </div>
+    </div>
+
+    <!-- Κλικ στο 5ο κουτι -->
+    <!-- ========== SECTION: Ευκαιρίες του μήνα ========== -->
+    <div class="section" id="section-searchBestOffer">
+      <div class="card">
+        <div class="section-title-row">
+          <h1>Βρες τις καλύτερες ευκαιρίες του μήνα</h1>
+          <button type="button" class="badge">best offers</button>
+        </div>
+
+        <p>Επίλεξε πόλη αναχώρησης και μήνα και πάτα "Αναζήτηση ευκαιριών".</p>
+
+        <!-- Πόλη αναχώρησης -->
+        <div class="field-row">
+          <label for="bestFromCity">Πόλη αναχώρησης</label>
+          <select id="bestFromCity" name="bestFromCity">
+            <option value="">-- επίλεξε --</option>
+            {% for city in departure_cities %}
+              <option value="{{ city }}">{{ city }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Μήνας -->
+        <div class="field-row">
+          <label for="bestMonth">Μήνας</label>
+          <select id="bestMonth" name="bestMonth">
+            <option value="">-- επίλεξε --</option>
+            <option value="1">Ιανουάριος</option>
+            <option value="2">Φεβρουάριος</option>
+            <option value="3">Μάρτιος</option>
+            <option value="4">Απρίλιος</option>
+            <option value="5">Μάιος</option>
+            <option value="6">Ιούνιος</option>
+            <option value="7">Ιούλιος</option>
+            <option value="8">Αύγουστος</option>
+            <option value="9">Σεπτέμβριος</option>
+            <option value="10">Οκτώβριος</option>
+            <option value="11">Νοέμβριος</option>
+            <option value="12">Δεκέμβριος</option>
+          </select>
+        </div>
+
+        <button type="button" id="searchBestOfferBtn">Αναζήτηση ευκαιριών</button>
+
+        <h2>Αποτελέσματα</h2>
+        <div id="searchBestOfferResults">
+          <p class="muted">Διάλεξε πόλη και μήνα για να εμφανιστούν εδώ οι καλύτερες ευκαιρίες.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Κλικ στο 6ο κουτι - Υπολειπομενες θεσεις-->
+    <div class="section" id="section-searchPassengers">
+      <div class="card">
+        <div class="section-title-row">
+          <h1>Δες πόσες θέσεις απομένουν, καθώς και τον κατάλογο επιβατών, βάζοντας το id της πτήσης</h1>
+          <button type="button" class="badge">search </button>
+        </div>
+
+        <p>Εισήγαγε το <strong>ID</strong> της πτήσης</p>
+
+        <div class="field-row">
+          <label for="deleteFlightId">ID πτήσης</label>
+          <input type="number" id="searchPassengersId" min="1" step="1" placeholder="π.χ. 48">
+        </div>
+
+        <button type="button" id="searchPassengersBtn">Αναζήτηση</button>
+
+        <h2>Αποτέλεσμα</h2>
+        <div id="searchPassengersResult">
+        </div>
+      </div>
+    </div>
+
+    <script>
+    function toggleMenu() {
+      document.getElementById("sideMenu").classList.toggle("open");
+    }
+    </script>
+
+    <script>
+    function showSection(name) {
+      // κρύψε / δείξε το σωστό section
+      document.querySelectorAll('.section').forEach(function (sec) {
+        const expectedId = 'section-' + name;
+        sec.classList.toggle('active', sec.id === expectedId);
+      });
+
+      // καθάρισε όλα τα active στο menu
+      document.querySelectorAll('.nav-btn').forEach(function (btn) {
+        btn.classList.remove('active');
+      });
+
+      // αντιστοίχιση ονόματος -> id κουμπιού nav
+      const navMap = {
+        home: 'nav-home',
+        view: 'nav-view',
+        insert: 'nav-insert',
+        deleteFlight: 'nav-search',
+        searchFlight: 'nav-search-Flight',
+        searchBestOffer: 'nav-search-Best-Offer'
+      };
+
+      const navId = navMap[name];
+      if (navId) {
+        const navBtn = document.getElementById(navId);
+        if (navBtn) navBtn.classList.add('active');
+      }
+    }
+  </script>
+
+  <script>
+  // όταν πατάω "Αναζήτηση" στο 1ο κουτί (Προβολή πινάκων)
+  document.getElementById("searchTableBtn").addEventListener("click", function () {
+    const tableName = document.getElementById("viewTableSelect").value;
+    const box = document.getElementById("searchTableResults");
+
+    if (!tableName) {
+      box.innerHTML = "<p class='muted'>Επίλεξε έναν πίνακα πρώτα.</p>";
+      return;
+    }
+
+    fetch("/view_table?table=" + encodeURIComponent(tableName))
+      .then(res => res.json())
+      .then(data => {
+        if (data.status !== "success") {
+          box.innerHTML = "<p style='color:#f97373'>" + (data.message || "Σφάλμα.") + "</p>";
+          return;
+        }
+
+        const rows = data.rows;
+        if (!rows || rows.length === 0) {
+          box.innerHTML = "<p class='muted'>Ο πίνακας είναι κενός.</p>";
+          return;
+        }
+
+        // Παίρνουμε τα ονόματα των στηλών από την πρώτη γραμμή
+        let columns = Object.keys(rows[0]);
+
+        // Βάλε το id πρώτο
+        if (columns.includes("id")) {
+          columns = ["id", ...columns.filter(c => c !== "id")];
+        }
+
+        let html = "<table><thead><tr>";
+        for (const col of columns) {
+          html += "<th>" + col + "</th>";
+        }
+        html += "</tr></thead><tbody>";
+
+        for (const row of rows) {
+          html += "<tr>";
+          for (const col of columns) {
+            const val = (row[col] !== null && row[col] !== undefined) ? row[col] : "";
+            html += "<td>" + val + "</td>";
+          }
+         html += "</tr>";
+        }
+
+        html += "</tbody></table>";
+        box.innerHTML = html;
+      })
+      .catch(err => {
+        console.error(err);
+        box.innerHTML = "<p style='color:#f97373'>Σφάλμα σύνδεσης με τον server.</p>";
+      });
+  });
+  </script>
+
+  <script>
+  // όταν πατάω "Προσθήκη" στο 2ο κουτί (εισαγωγή νέας πτήσης)
+  document.getElementById("InsertFlightBtn").addEventListener("click", function () {
+    const payload = {
+      airline_id: document.getElementById("insertAirlineId").value,
+      departure_airport_id: document.getElementById("insertDepartureAirportId").value,
+      arrival_airport_id: document.getElementById("insertArrivalAirportId").value,
+      flight_date: document.getElementById("insertFlightDate").value,
+      flight_time: document.getElementById("insertFlightTime").value,
+      price: document.getElementById("insertPrice").value
+    };
+
+    const box = document.getElementById("InsertFlightResult");
+
+    fetch("/insert_flight", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "success") {
+        box.innerHTML = `<span style="color:#f97373">${data.message}</span>`;
+        return;
+      }
+
+      const f = data.flight;
+
+      box.innerHTML = `
+        <p style="color:#4ade80">${data.message}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Airline ID</th>
+              <th>Dep. airport</th>
+              <th>Arr. airport</th>
+              <th>Dep. City</th>
+              <th>Arr. City</th>
+              <th>Ημερομηνία</th>
+              <th>Ώρα</th>
+              <th>Τιμή (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${f.id}</td>
+              <td>${f.airline_id}</td>
+              <td>${f.departure_airport_id}</td>
+              <td>${f.arrival_airport_id}</td>
+              <td>${f.departure_city}</td>
+              <td>${f.arrival_city} </td>
+              <td>${f.flight_date}</td>
+              <td>${f.flight_time}</td>
+              <td>${f.price ?? "-"}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    })
+    .catch(err => {
+      console.error(err);
+      box.innerHTML = "<span style='color:#f97373'>Σφάλμα σύνδεσης με τον server.</span>";
+    });
+  });
+  </script>
+
+
+  <script>
+  // όταν πατάω "Διαγραφη" στο 3ο κουτι
+  document.getElementById("deleteFlightBtn").addEventListener("click", function () {
+    const id = document.getElementById("deleteFlightId").value;
+    const resultBox = document.getElementById("deleteFlightResult");
+
+    if (!id) {
+        resultBox.innerHTML = "<span style='color:#f97373'>Πρέπει να δώσεις ένα ID πτήσης.</span>";
+        return;
+    }
+
+    fetch("/delete_flight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            resultBox.innerHTML = `<span style="color:#90ee90">${data.message}</span>`;
+        } else if (data.status === "not_found") {
+            resultBox.innerHTML = `<span style="color:#f4d03f">${data.message}</span>`;
+        } else {
+            resultBox.innerHTML = `<span style="color:#f97373">${data.message}</span>`;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        resultBox.innerHTML = "<span style='color:#f97373'>Σφάλμα σύνδεσης με τον server.</span>";
+    });
+  });
+  </script>
+
+<script>
+document.getElementById("searchFlightBtn").addEventListener("click", function () {
+  const fromCity   = document.getElementById("fromCity").value;
+  const toCity     = document.getElementById("toCity").value;
+  const flightDate = document.getElementById("flightDate").value;
+
+  
+  const container = document.getElementById("searchFlightResults");
+  const days = document.getElementById("insertDays").value;
+
+  const params = new URLSearchParams({
+    fromCity,
+    toCity,
+    flightDate,
+    days
+  });
+
+  fetch("/search_flights?" + params.toString())
+    .then(res => res.json())
+    .then(data => {
+      const outbound = data.outbound || [];
+      const ret      = data.return || [];
+
+      if (outbound.length === 0 && ret.length === 0) {
+        container.innerHTML = "<p class='muted'>Δεν βρέθηκαν πτήσεις με αυτά τα κριτήρια.</p>";
+        return;
+      }
+
+      function buildTable(title, rows) {
+        if (!rows || rows.length === 0) {
+          return `<h2>${title}</h2><p class='muted'>Δεν βρέθηκαν πτήσεις.</p>`;
+        }
+
+        let html = `
+          <h2>${title}</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Αεροδρόμιο</th>
+                <th>Χώρα</th>
+                <th>Από</th>
+                <th>Προς</th>
+                <th>Ημερομηνία</th>
+                <th>Ώρα</th>
+                <th>Τιμή (€)</th>
+                <th>Σημείωση</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        for (const row of rows) {
+          const rowClass = row.is_selected ? "selected-flight" : "";
+          const note = row.is_selected ? "Η ημερομηνία που επέλεξες" : "";
+          html += `
+            <tr class="${rowClass}">
+              <td>${row.id}</td>
+              <td>${row.airport_name ?? ""}</td>
+              <td>${row.country ?? ""}</td>
+              <td>${row.departure_city ?? ""}</td>
+              <td>${row.arrival_city ?? ""}</td>
+              <td>${row.flight_date ?? ""}</td>
+              <td>${row.flight_time ?? ""}</td>
+              <td>${row.price ?? "-"}</td>
+              <td class="selected-flight-note">${note}</td>
+            </tr>
+          `;
+        }
+
+        html += "</tbody></table>";
+        return html;
+      }
+
+      container.innerHTML =
+        buildTable("Πτήσεις αναχώρησης", outbound) +
+        "<div style='height:14px'></div>" +
+        buildTable("Πτήσεις επιστροφής", ret);
+    })
+    .catch(err => {
+      console.error(err);
+      container.innerHTML = "<p style='color:#f97373'>Σφάλμα κατά την αναζήτηση πτήσεων.</p>";
+    });
+});
+</script>
+
+
+  <script>
+  // όταν πατάω "Αναζήτηση ευκαιριών" στο 5ο κουτί
+  document.getElementById("searchBestOfferBtn").addEventListener("click", function () {
+    const fromCity = document.getElementById("bestFromCity").value;
+    const month    = document.getElementById("bestMonth").value;
+
+    const container = document.getElementById("searchBestOfferResults");
+
+    if (!fromCity || !month) {
+      container.innerHTML = "<p class='muted'>Παρακαλώ επίλεξε πόλη και μήνα.</p>";
+      return;
+    }
+
+    const params = new URLSearchParams({
+      fromCity: fromCity,
+      month: month
+    });
+
+    fetch("/search_best_offers?" + params.toString())
+      .then(response => response.json())
+      .then(data => {
+        if (!data || data.length === 0) {
+          container.innerHTML = "<p class='muted'>Δεν βρέθηκαν ευκαιρίες για αυτήν την πόλη και μήνα.</p>";
+          return;
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Από</th>
+                <th>Προς</th>
+                <th>Ημερομηνία</th>
+                <th>Ώρα</th>
+                <th>Τιμή (€)</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        for (const row of data) {
+          html += `
+            <tr>
+              <td>${row.departure_city}</td>
+              <td>${row.arrival_city}</td>
+              <td>${row.flight_date}</td>
+              <td>${row.flight_time}</td>
+              <td>${row.price}</td>
+            </tr>
+          `;
+        }
+
+        html += "</tbody></table>";
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        console.error(err);
+        container.innerHTML = "<p style='color:#f97373'>Προέκυψε σφάλμα κατά την αναζήτηση ευκαιριών.</p>";
+      });
+  });
+  </script>
+
+  <script>
+  // όταν πατάω "Αναζήτηση" στο 6ο κουτι
+  document.getElementById("searchPassengersBtn").addEventListener("click", function () {
+    const flightId = document.getElementById("searchPassengersId").value;
+    const container = document.getElementById("searchPassengersResult");
+
+    if (!flightId) {
+      container.innerHTML = "<span style='color:#f97373'>Δώσε ID πτήσης.</span>";
+      return;
+    }
+
+    fetch("/search_passengers?flight_id=" + encodeURIComponent(flightId))
+      .then(res => res.json())
+      .then(data => {
+        if (data.status !== "success") {
+          container.innerHTML = `<span style='color:#f97373'>${data.message}</span>`;
+          return;
+        }
+
+      // ✈️ Μπλοκ με στοιχεία πτήσης
+        let html = "";
+        if (data.flight_info) {
+          const f = data.flight_info;
+          html += `
+            <div style="margin-bottom: 12px; padding: 10px; border-radius: 10px;
+                        background: rgba(15,23,42,0.7); border: 1px solid #1f2937;">
+              <p><strong>Πτήση:</strong> ${f.departure_city} → ${f.arrival_city}</p>
+              <p><strong>Αεροδρόμιο αναχώρησης:</strong> ${f.airport_name}</p>
+              <p>
+                <strong>Ημερομηνία:</strong> ${f.flight_date}
+                &nbsp;|&nbsp;
+                <strong>Ώρα:</strong> ${f.flight_time}
+                &nbsp;|&nbsp;
+                <strong>Τιμή:</strong> ${f.price != null ? f.price + " €" : "-"}
+              </p>
+            </div>
+          `;
+        }
+
+      // Φτιάχνουμε HTML: επιβάτες + αριθμός + υπολειπόμενες θέσεις
+        html += `
+          <p>Συνολικοί επιβάτες: <strong>${data.passenger_count}</strong>,
+            Χωρητικότητα: <strong>${data.capacity}</strong>,
+            Υπολειπόμενες θέσεις: <strong>${data.remaining_seats}</strong></p>
+          <table>
+            <thead>
+              <tr>
+                <th>Όνομα</th>
+                <th>Επώνυμο</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        for (const p of data.passengers) {
+          html += `
+            <tr>
+              
+              <td>${p.first_name || ""}</td>
+              <td>${p.last_name || ""}</td>
+            </tr>
+          `;
+        }
+
+        html += "</tbody></table>";
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        console.error(err);
+        container.innerHTML = "<span style='color:#f97373'>Σφάλμα σύνδεσης με τον server.</span>";
+      });
+  });
+  </script>
+  
+
+
+</body>
+</html>
+
+
