@@ -46,7 +46,7 @@ You need Python 3 and a running MySQL server. Clone or download this repository 
 
 5. Check the template directory. The repository lists it as `template/`, while the report uses Flask's default `templates/` directory. If the app uses the default, rename your local `template/` folder to `templates/` so Flask can find `new_app.html`.
 
-6. Start the app and open [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your browser.
+6. Start the app and open [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your browser by running:
 
    ```bash
    python new_app.py
